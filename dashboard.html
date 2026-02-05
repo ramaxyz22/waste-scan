@@ -150,10 +150,7 @@ Klik Upload
 <video id="video" width="100%" autoplay class="hidden"></video>
 <button class="btn hidden" id="snapBtn" onclick="takePhoto()">Ambil Foto</button>
 
-
-
-<img id="preview">
-</label>
+  
 
 <button class="btn" onclick="predict()">Mulai Scan</button>
 
@@ -190,6 +187,46 @@ Klik Upload
 </main>
 
 <script>
+  let stream;
+
+async function openCamera(){
+  try{
+    const video = document.getElementById("video");
+    const snapBtn = document.getElementById("snapBtn");
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    video.classList.remove("hidden");
+    snapBtn.classList.remove("hidden");
+
+  }catch(err){
+    alert("Kamera tidak diizinkan / tidak tersedia");
+    console.error(err);
+  }
+}
+
+function takePhoto(){
+  const video = document.getElementById("video");
+  const preview = document.getElementById("preview");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video,0,0);
+
+  preview.src = canvas.toDataURL("image/png");
+
+  stream.getTracks().forEach(t => t.stop());
+  video.classList.add("hidden");
+  snapBtn.classList.add("hidden");
+}
+
 
 const URL="./model/";
 
@@ -325,5 +362,6 @@ else{
 
 </body>
 </html>
+
 
 
