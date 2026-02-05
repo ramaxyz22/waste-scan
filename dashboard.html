@@ -140,16 +140,21 @@ margin-bottom:15px;
 <h3>Upload Gambar Sampah</h3>
 
 <label class="upload">
-Klik Upload / Kamera
+Klik Pilih Gambar
 
 <!-- GALERI -->
 <input hidden id="imageInput" type="file" accept="image/*">
 
-<!-- KAMERA -->
-<input hidden id="cameraInput" type="file" accept="image/*" capture="environment">
-
 <img id="preview">
 </label>
+
+<button class="btn" onclick="document.getElementById('cameraInput').click()">
+Ambil dari Kamera
+</button>
+
+<!-- KAMERA (dipanggil via tombol) -->
+<input hidden id="cameraInput" type="file" accept="image/*" capture="environment">
+
 
 
 <button class="btn" onclick="predict()">Mulai Scan</button>
@@ -335,5 +340,6 @@ else{
 
 </body>
 </html>
+
 
 
