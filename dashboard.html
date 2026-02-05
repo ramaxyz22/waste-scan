@@ -265,16 +265,7 @@ window.onload = async () => {
     };
   }
 
-  // ===== LOAD MODEL =====
-  try {
-    model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-    alert("MODEL SIAP");
-  } catch (e) {
-    alert("MODEL GAGAL LOAD");
-    console.error(e);
-  }
 
-};
 
 
 
@@ -351,6 +342,7 @@ else{
 
 </body>
 </html>
+
 
 
 
