@@ -140,11 +140,17 @@ margin-bottom:15px;
 <h3>Upload Gambar Sampah</h3>
 
 <label class="upload">
-Klik Upload
+Klik Upload / Kamera
+
+<!-- GALERI -->
 <input hidden id="imageInput" type="file" accept="image/*">
+
+<!-- KAMERA -->
+<input hidden id="cameraInput" type="file" accept="image/*" capture="environment">
 
 <img id="preview">
 </label>
+
 
 <button class="btn" onclick="predict()">Mulai Scan</button>
 
@@ -187,6 +193,19 @@ const URL="./model/";
 let model,lastResult="";
 
 window.onload=async()=>{
+  const cameraInput = document.getElementById("cameraInput");
+
+cameraInput.onchange = e => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    preview.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+};
+
   const imageInput = document.getElementById("imageInput");
 const preview = document.getElementById("preview");
 const label = document.getElementById("label");
@@ -316,4 +335,5 @@ else{
 
 </body>
 </html>
+
 
