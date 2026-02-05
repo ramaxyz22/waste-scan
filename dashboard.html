@@ -141,7 +141,14 @@ margin-bottom:15px;
 
 <label class="upload">
 Klik Upload
-<<input hidden id="imageInput" type="file" accept="image/*" capture="environment">
+<input hidden id="imageInput" type="file" accept="image/*">
+<img id="preview">
+</label>
+
+<button class="btn" onclick="openCamera()">Buka Kamera</button>
+
+<video id="video" width="100%" autoplay class="hidden"></video>
+<button class="btn hidden" id="snapBtn" onclick="takePhoto()">Ambil Foto</button>
 
 
 
@@ -318,4 +325,5 @@ else{
 
 </body>
 </html>
+
 
