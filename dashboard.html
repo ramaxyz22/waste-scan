@@ -189,74 +189,93 @@ const URL="./model/";
 
 let model,lastResult="";
 
-window.onload=async()=>{
-  const cameraInput = document.getElementById("cameraInput");
 
-cameraInput.onchange = e => {
-  const file = e.target.files[0];
-  if(!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    preview.src = reader.result;
-  };
-  reader.readAsDataURL(file);
-};
+window.onload = async () => {
 
   const imageInput = document.getElementById("imageInput");
-const preview = document.getElementById("preview");
-const label = document.getElementById("label");
-const confidence = document.getElementById("confidence");
-const inlineText = document.getElementById("inlineText");
-const inlineJenis = document.getElementById("inlineJenis");
-const result = document.getElementById("result");
-const inlineRekom = document.getElementById("inlineRekom");
-const hasilScan = document.getElementById("hasilScan");
-const rekomText = document.getElementById("rekomText");
+  const preview = document.getElementById("preview");
+  const label = document.getElementById("label");
+  const confidence = document.getElementById("confidence");
+  const inlineText = document.getElementById("inlineText");
+  const inlineJenis = document.getElementById("inlineJenis");
+  const result = document.getElementById("result");
+  const inlineRekom = document.getElementById("inlineRekom");
+  const hasilScan = document.getElementById("hasilScan");
+  const rekomText = document.getElementById("rekomText");
 
+  const dashboard = document.getElementById("dashboard");
+  const scan = document.getElementById("scan");
+  const jenis = document.getElementById("jenis");
+  const rekomendasi = document.getElementById("rekomendasi");
 
-const dashboard=document.getElementById("dashboard");
-const scan=document.getElementById("scan");
-const jenis=document.getElementById("jenis");
-const rekomendasi=document.getElementById("rekomendasi");
-
-window.openScan=()=>{dashboard.classList.add("hidden");scan.classList.remove("hidden");}
-window.openJenis=()=>{dashboard.classList.add("hidden");jenis.classList.remove("hidden");}
-window.openRekomendasi=()=>{
-  dashboard.classList.add("hidden");
-  rekomendasi.classList.remove("hidden");
-
-  if(!lastResult){
-    hasilScan.innerHTML = "Belum ada hasil scan";
-    rekomText.innerHTML = `
-      📸 Silakan lakukan scan sampah terlebih dahulu<br>
-      ♻ Setelah scan, rekomendasi akan muncul di sini
-    `;
-  }else{
-    hasilScan.innerHTML = "Jenis Sampah: " + lastResult;
-    rekomText.innerHTML = inlineText.innerHTML;
+  // ===== MENU =====
+  window.openScan = () => {
+    dashboard.classList.add("hidden");
+    scan.classList.remove("hidden");
   }
-}
 
-window.back=()=>{
-scan.classList.add("hidden");
-jenis.classList.add("hidden");
-rekomendasi.classList.add("hidden");
-dashboard.classList.remove("hidden");
-}
+  window.openJenis = () => {
+    dashboard.classList.add("hidden");
+    jenis.classList.remove("hidden");
+  }
 
-imageInput.onchange = e => {
-const file = e.target.files[0];
-if(!file) return;
+  window.openRekomendasi = () => {
+    dashboard.classList.add("hidden");
+    rekomendasi.classList.remove("hidden");
 
-const reader = new FileReader();
+    if (!lastResult) {
+      hasilScan.innerHTML = "Belum ada hasil scan";
+      rekomText.innerHTML = `
+        📸 Silakan lakukan scan sampah terlebih dahulu<br>
+        ♻ Setelah scan, rekomendasi akan muncul di sini
+      `;
+    } else {
+      hasilScan.innerHTML = "Jenis Sampah: " + lastResult;
+      rekomText.innerHTML = inlineText.innerHTML;
+    }
+  }
 
-reader.onload = () => {
-preview.src = reader.result;
+  window.back = () => {
+    scan.classList.add("hidden");
+    jenis.classList.add("hidden");
+    rekomendasi.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+  }
+
+  // ===== UPLOAD FILE =====
+  imageInput.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => preview.src = reader.result;
+    reader.readAsDataURL(file);
+  };
+
+  // ===== CAMERA (AMAN walau elemen tidak ada) =====
+  const cameraInput = document.getElementById("cameraInput");
+  if (cameraInput) {
+    cameraInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => preview.src = reader.result;
+      reader.readAsDataURL(file);
+    };
+  }
+
+  // ===== LOAD MODEL =====
+  try {
+    model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+    alert("MODEL SIAP");
+  } catch (e) {
+    alert("MODEL GAGAL LOAD");
+    console.error(e);
+  }
+
 };
 
-reader.readAsDataURL(file);
-};
 
 
 try{
@@ -332,6 +351,7 @@ else{
 
 </body>
 </html>
+
 
 
 
