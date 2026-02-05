@@ -6,18 +6,15 @@
 
 <title>Trash Scan</title>
 
-<!-- JANGAN PAKAI latest -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 
 <style>
-
 body{
 margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#ffd6c9,#ffb7a5,#ffe5dc);
 }
-
 header{
 background:white;
 padding:15px;
@@ -27,13 +24,11 @@ align-items:center;
 box-shadow:0 5px 10px rgba(0,0,0,.08);
 font-weight:bold;
 }
-
 main{
 padding:20px;
 max-width:600px;
 margin:auto;
 }
-
 .card{
 background:white;
 padding:20px;
@@ -45,7 +40,6 @@ justify-content:space-between;
 align-items:center;
 cursor:pointer;
 }
-
 .icon{
 background:#ffb7a5;
 color:white;
@@ -56,7 +50,6 @@ display:flex;
 align-items:center;
 justify-content:center;
 }
-
 .btn{
 background:#ff9a82;
 color:white;
@@ -67,9 +60,7 @@ border-radius:12px;
 margin-top:15px;
 cursor:pointer;
 }
-
 .hidden{display:none;}
-
 .upload{
 border:2px dashed #ffb7a5;
 border-radius:14px;
@@ -77,13 +68,11 @@ padding:25px;
 text-align:center;
 cursor:pointer;
 }
-
 .upload img{
 max-width:100%;
 margin-top:10px;
 border-radius:12px;
 }
-
 .result{
 background:#fff0ea;
 padding:15px;
@@ -91,7 +80,6 @@ border-radius:14px;
 margin-top:10px;
 display:none;
 }
-
 .box{
 background:white;
 padding:20px;
@@ -99,24 +87,22 @@ border-radius:16px;
 box-shadow:0 10px 20px rgba(0,0,0,.1);
 margin-bottom:15px;
 }
-
 </style>
 </head>
 
 <body>
 
 <header class="hero">
-  <div class="hero-title">
-    <div class="logo">♻</div>
-    <div>
-      <h1>Welcome to the Digital Waste Detector website</h1>
-      <p>Sistem Pengelolaan Sampah Sekolah Berbasis Teknologi</p>
-    </div>
-  </div>
+<div class="hero-title">
+<div class="logo">♻</div>
+<div>
+<h1>Welcome to the Digital Waste Detector website</h1>
+<p>Sistem Pengelolaan Sampah Sekolah Berbasis Teknologi</p>
+</div>
+</div>
 </header>
 
 <main id="dashboard">
-
 <div class="card" onclick="openScan()">
 <div><b>Scan Sampah</b></div>
 <div class="icon">📷</div>
@@ -131,12 +117,10 @@ margin-bottom:15px;
 <div><b>Hasil & Rekomendasi</b></div>
 <div class="icon">♻</div>
 </div>
-
 </main>
 
 <main id="scan" class="hidden">
 <div class="box">
-
 <h3>Upload Gambar Sampah</h3>
 
 <label class="upload" for="imageInput">
@@ -144,10 +128,6 @@ Klik Upload Gambar
 <input id="imageInput" type="file" accept="image/*">
 <img id="preview">
 </label>
-
-
-
-
 
 <button class="btn" onclick="predict()">Mulai Scan</button>
 
@@ -162,7 +142,6 @@ Klik Upload Gambar
 </div>
 
 <button class="btn" onclick="back()">Kembali</button>
-
 </div>
 </main>
 
@@ -186,89 +165,84 @@ Klik Upload Gambar
 <script>
 
 const URL="./model/";
-
 let model,lastResult="";
 
+/* ===== TAMBAHAN GLOBAL (INI KUNCI FIX) ===== */
+let preview,label,confidence,result,inlineRekom,inlineJenis,inlineText,hasilScan,rekomText;
 
 window.onload = async () => {
 
-  const imageInput = document.getElementById("imageInput");
-  const preview = document.getElementById("preview");
-  const label = document.getElementById("label");
-  const confidence = document.getElementById("confidence");
-  const inlineText = document.getElementById("inlineText");
-  const inlineJenis = document.getElementById("inlineJenis");
-  const result = document.getElementById("result");
-  const inlineRekom = document.getElementById("inlineRekom");
-  const hasilScan = document.getElementById("hasilScan");
-  const rekomText = document.getElementById("rekomText");
+const imageInput = document.getElementById("imageInput");
 
-  const dashboard = document.getElementById("dashboard");
-  const scan = document.getElementById("scan");
-  const jenis = document.getElementById("jenis");
-  const rekomendasi = document.getElementById("rekomendasi");
+/* ===== DIUBAH DARI const → assignment ===== */
+preview = document.getElementById("preview");
+label = document.getElementById("label");
+confidence = document.getElementById("confidence");
+inlineText = document.getElementById("inlineText");
+inlineJenis = document.getElementById("inlineJenis");
+result = document.getElementById("result");
+inlineRekom = document.getElementById("inlineRekom");
+hasilScan = document.getElementById("hasilScan");
+rekomText = document.getElementById("rekomText");
 
-  // ===== MENU =====
-  window.openScan = () => {
-    dashboard.classList.add("hidden");
-    scan.classList.remove("hidden");
-  }
+const dashboard = document.getElementById("dashboard");
+const scan = document.getElementById("scan");
+const jenis = document.getElementById("jenis");
+const rekomendasi = document.getElementById("rekomendasi");
 
-  window.openJenis = () => {
-    dashboard.classList.add("hidden");
-    jenis.classList.remove("hidden");
-  }
+/* ===== MENU ===== */
+window.openScan = () => {
+dashboard.classList.add("hidden");
+scan.classList.remove("hidden");
+}
 
-  window.openRekomendasi = () => {
-    dashboard.classList.add("hidden");
-    rekomendasi.classList.remove("hidden");
+window.openJenis = () => {
+dashboard.classList.add("hidden");
+jenis.classList.remove("hidden");
+}
 
-    if (!lastResult) {
-      hasilScan.innerHTML = "Belum ada hasil scan";
-      rekomText.innerHTML = `
-        📸 Silakan lakukan scan sampah terlebih dahulu<br>
-        ♻ Setelah scan, rekomendasi akan muncul di sini
-      `;
-    } else {
-      hasilScan.innerHTML = "Jenis Sampah: " + lastResult;
-      rekomText.innerHTML = inlineText.innerHTML;
-    }
-  }
+window.openRekomendasi = () => {
+dashboard.classList.add("hidden");
+rekomendasi.classList.remove("hidden");
 
-  window.back = () => {
-    scan.classList.add("hidden");
-    jenis.classList.add("hidden");
-    rekomendasi.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-  }
+if (!lastResult) {
+hasilScan.innerHTML = "Belum ada hasil scan";
+rekomText.innerHTML = `📸 Silakan lakukan scan sampah terlebih dahulu<br>♻ Setelah scan, rekomendasi akan muncul di sini`;
+} else {
+hasilScan.innerHTML = "Jenis Sampah: " + lastResult;
+rekomText.innerHTML = inlineText.innerHTML;
+}
+}
 
-  // ===== UPLOAD FILE =====
-  imageInput.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
+window.back = () => {
+scan.classList.add("hidden");
+jenis.classList.add("hidden");
+rekomendasi.classList.add("hidden");
+dashboard.classList.remove("hidden");
+}
 
-    const reader = new FileReader();
-    reader.onload = () => preview.src = reader.result;
-    reader.readAsDataURL(file);
-  };
+/* ===== UPLOAD ===== */
+imageInput.onchange = e => {
+const file = e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = () => preview.src = reader.result;
+reader.readAsDataURL(file);
+};
 
-  // ===== CAMERA (AMAN walau elemen tidak ada) =====
-  const cameraInput = document.getElementById("cameraInput");
-  if (cameraInput) {
-    cameraInput.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
+/* ===== CAMERA AMAN ===== */
+const cameraInput = document.getElementById("cameraInput");
+if (cameraInput) {
+cameraInput.onchange = e => {
+const file = e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = () => preview.src = reader.result;
+reader.readAsDataURL(file);
+};
+}
 
-      const reader = new FileReader();
-      reader.onload = () => preview.src = reader.result;
-      reader.readAsDataURL(file);
-    };
-  }
-
-
-
-
-
+/* ===== LOAD MODEL ===== */
 try{
 model=await tmImage.load(URL+"model.json",URL+"metadata.json");
 alert("MODEL SIAP");
@@ -279,6 +253,7 @@ console.error(e);
 
 };
 
+/* ===== PREDICT ===== */
 async function predict(){
 
 if(!model) return alert("Model belum siap");
@@ -295,60 +270,24 @@ confidence.innerText="Akurasi "+(p[0].probability*100).toFixed(2)+"%";
 result.style.display="block";
 inlineRekom.style.display="block";
 inlineJenis.innerHTML="Jenis Sampah: "+lastResult;
+
 const resultText = lastResult.toLowerCase();
 
-
 if(resultText === "organik"){
-
-
-  inlineText.innerHTML = `
-  🟢 <b>Jenis:</b> Sampah Organik<br>
-  ✅ Kompos<br>
-  ✅ Pakan ternak<br>
-  ✅ Biopori<br>
-  ✅ Eco enzyme
-  `;
+inlineText.innerHTML = `🟢 <b>Jenis:</b> Sampah Organik<br>✅ Kompos<br>✅ Pakan ternak<br>✅ Biopori<br>✅ Eco enzyme`;
 }
 else if(resultText === "anorganik"){
-
-  inlineText.innerHTML = `
-  🟠 <b>Jenis:</b> Sampah Anorganik<br>
-  ♻ Daur ulang<br>
-  ♻ Bank sampah<br>
-  ♻ Ecobrick<br>
-  ♻ Kerajinan
-  `;
-} 
-else if(resultText === "b3"){
-
-  inlineText.innerHTML = `
-  🔴 <b>Jenis:</b> Sampah B3<br>
-  ⚠ Jangan dibakar<br>
-  ⚠ Jangan dibuang sembarangan<br>
-  ⚠ Kirim ke TPS khusus B3
-  `;
+inlineText.innerHTML = `🟠 <b>Jenis:</b> Sampah Anorganik<br>♻ Daur ulang<br>♻ Bank sampah<br>♻ Ecobrick<br>♻ Kerajinan`;
 }
-
+else if(resultText === "b3"){
+inlineText.innerHTML = `🔴 <b>Jenis:</b> Sampah B3<br>⚠ Jangan dibakar<br>⚠ Jangan dibuang sembarangan<br>⚠ Kirim ke TPS khusus B3`;
+}
 else{
-  inlineText.innerHTML = `
-  ❓ Jenis sampah tidak dikenali<br>
-  🔍 Silakan pisahkan manual
-  `;
+inlineText.innerHTML = `❓ Jenis sampah tidak dikenali<br>🔍 Silakan pisahkan manual`;
 }
 
 }
 
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
